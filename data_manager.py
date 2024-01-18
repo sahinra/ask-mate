@@ -29,3 +29,23 @@ def get_question_with_answers(cursor, index):
     """)
     result = cursor.fetchall()
     return result
+
+
+@db_connection.handle_connection
+def register_user(cursor, username, email, password):
+    cursor.execute(f"""
+        INSERT INTO users (username, email, user_password, is_active)
+        VALUES ('{username}', '{email}', '{password}', true) returning user_id
+    """)
+    result = cursor.fetchall()
+    return result
+
+
+@db_connection.handle_connection
+def login_user(cursor, username, password):
+    cursor.execute(f"""
+        select username, user_password from users
+        where username = '{username}' and user_password = '{password}'
+    """)
+    result = cursor.fetchall()
+    return result
