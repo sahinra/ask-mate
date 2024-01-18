@@ -19,13 +19,14 @@ def make_connection():
     return conn
 
 
-def handle_connection():
-    conn = make_connection()
-    cursor = conn.cursor(cursor_factory=extras.RealDictCursor)
-    cursor.execute("SELECT * FROM questions")
-    result = cursor.fetchall()
-    print("Questions\n", result)
-
-
-if __name__ == "__main__":
-    handle_connection()
+def handle_connection(func_to_execute):
+    def wrapper(*arg, **kwargs):
+        with make_connection() as connection:
+            with connection.cursor(cursor_factory=extras.RealDictCursor) as cursor:
+                query_result = func_to_execute(cursor, *arg, **kwargs)
+                for item in query_result:
+                    print("-" * 50)
+                    for key, value in item.items():
+                        print(f"{key}: {value}")
+                return query_result
+    return wrapper
